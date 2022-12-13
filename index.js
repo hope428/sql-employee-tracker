@@ -3,6 +3,8 @@ const mysql = require("mysql2");
 const menuQuestions = require("./prompts/menuQuestions");
 const addDepartmentPrompts = require("./prompts/addDepartmentPrompts");
 const addRolePrompts = require("./prompts/addRolePrompts");
+const addEmployeePrompts = require("./prompts/addEmployeePrompts");
+const updateEmployeePrompts = require("./prompts/updateEmployeePrompts");
 
 function init() {
   inquirer.prompt(menuQuestions).then((data) => {
@@ -66,13 +68,25 @@ function addRole() {
 }
 
 function addEmployee() {
-  console.log("add employee prompts");
-  init();
+  inquirer.prompt(addEmployeePrompts).then((data) => {
+    console.log(data);
+    console.log(
+      `New employee ${data.firstName} ${data.lastName} has been added`
+    );
+    init();
+  });
 }
 
 function updateEmployeeRole() {
-  console.log("update employee role prompts");
-  init();
+  inquirer.prompt(updateEmployeePrompts).then((data) => {
+    if (data.chosenRole === "Cancel") {
+      init();
+    } else {
+      console.log(data);
+      console.log("Employee has been successfully updated!");
+      init();
+    }
+  });
 }
 
 function exit() {
