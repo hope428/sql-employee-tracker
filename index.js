@@ -86,14 +86,16 @@ function addRole() {
 }
 
 function addEmployee() {
-  inquirer.prompt(addEmployeePrompts).then((data) => {
-    db.query(
-      `INSERT INTO employee (first_name, last_name) VALUES ("${data.firstName}", "${data.lastName}")`
-    );
-    console.log(
-      `New employee ${data.firstName} ${data.lastName} has been added`
-    );
-    init();
+  db.query("SELECT * FROM role", (err, data) => {
+    inquirer.prompt(addEmployeePrompts(data)).then((data) => {
+      db.query(
+        `INSERT INTO employee (first_name, last_name) VALUES ("${data.firstName}", "${data.lastName}")`
+      );
+      console.log(
+        `New employee ${data.firstName} ${data.lastName} has been added`
+      );
+      init();
+    });
   });
 }
 
