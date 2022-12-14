@@ -6,6 +6,16 @@ const addRolePrompts = require("./prompts/addRolePrompts");
 const addEmployeePrompts = require("./prompts/addEmployeePrompts");
 const updateEmployeePrompts = require("./prompts/updateEmployeePrompts");
 
+const db = mysql.createConnection(
+  {
+    host: "localhost",
+    user: "root",
+    password: "bluemoon815!",
+    database: "employee_db",
+  },
+  console.log("Connected to employee_db!")
+);
+
 function init() {
   inquirer.prompt(menuQuestions).then((data) => {
     const action = data.action;
@@ -39,30 +49,36 @@ function init() {
 }
 
 function viewDepartments() {
-  console.log("list all departments");
-  init();
+  db.query("SELECT * FROM department", (err, data) => {
+    console.table(data);
+    init();
+  });
 }
 
 function viewRoles() {
-  console.log("list all roles");
-  init();
+  db.query("SELECT * FROM role", (err, data) => {
+    console.table(data);
+    init();
+  });
 }
 
 function viewEmployees() {
-  console.log("list all employees");
-  init();
+  db.query("SELECT * FROM employee", (err, data) => {
+    console.table(data);
+    init();
+  });
 }
 
 function addDepartment() {
   inquirer.prompt(addDepartmentPrompts).then((data) => {
-    console.log(data.newDepartment);
+    db.query(`INSERT INTO department (name) VALUES ("${data.newDepartment}")`)
     init();
   });
 }
 
 function addRole() {
   inquirer.prompt(addRolePrompts).then((data) => {
-    console.log(data);
+    db.query(`INSERT INTO role (name) VALUES ("${data.newDepartment}")`)
     init();
   });
 }
