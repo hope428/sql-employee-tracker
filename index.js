@@ -71,21 +71,25 @@ function viewEmployees() {
 
 function addDepartment() {
   inquirer.prompt(addDepartmentPrompts).then((data) => {
-    db.query(`INSERT INTO department (name) VALUES ("${data.newDepartment}")`)
+    db.query(`INSERT INTO department (name) VALUES ("${data.newDepartment}")`);
     init();
   });
 }
 
 function addRole() {
   inquirer.prompt(addRolePrompts).then((data) => {
-    db.query(`INSERT INTO role (name) VALUES ("${data.newDepartment}")`)
+    db.query(
+      `INSERT INTO role (title, salary) VALUES ("${data.roleName}", "${data.roleSalary}")`
+    );
     init();
   });
 }
 
 function addEmployee() {
   inquirer.prompt(addEmployeePrompts).then((data) => {
-    console.log(data);
+    db.query(
+      `INSERT INTO employee (first_name, last_name) VALUES ("${data.firstName}", "${data.lastName}")`
+    );
     console.log(
       `New employee ${data.firstName} ${data.lastName} has been added`
     );
