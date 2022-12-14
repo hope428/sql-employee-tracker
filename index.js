@@ -1,5 +1,6 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
+const ctable = require("console.table");
 const menuQuestions = require("./prompts/menuQuestions");
 const addDepartmentPrompts = require("./prompts/addDepartmentPrompts");
 const addRolePrompts = require("./prompts/addRolePrompts");
@@ -78,15 +79,29 @@ function addDepartment() {
 
 function addRole() {
   db.query("SELECT * FROM department", (err, data) => {
-    inquirer.prompt(addRolePrompts(data)).then((data) => {
-      // db.query(
-      //   `INSERT INTO role (title, salary) VALUES (?, ?)`,
-      //   data.roleName,
-      //   data.roleSalary
-      // );
-      // init();
-      return data.roleDepartment;
-    }).then((data) => console.log(data));
+    inquirer
+      .prompt(addRolePrompts(data))
+      .then((data) => {
+        return data;
+      })
+      //.then block takes data from prompts and calls db.query to retrieve dept id based on dept name
+      .then((data) => {
+        const roleName = data.roleName;
+        const roleSalary = data.roleSalary;
+        db.query(
+          "SELECT id FROM department WHERE ?",
+          { name: data.roleDepartment },
+          (err, data) => {
+            //db query to insert data with department id
+            db.query(
+              `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,
+              [roleName, roleSalary, data[0].id]
+            );
+            //calls main menu
+            init();
+          }
+        );
+      });
   });
 }
 
