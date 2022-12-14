@@ -20,7 +20,7 @@ const addEmployeePrompts = (data) => {
     {
       message: "Select employee manager",
       type: "list",
-      choices: ["Leif Hetland", "Benjamin White", "None"],
+      choices: ["choices", "of", "managers", "None"],
       name: "employeeManager",
     },
   ];

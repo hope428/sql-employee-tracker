@@ -10,7 +10,7 @@ const db = mysql.createConnection(
   {
     host: "localhost",
     user: "root",
-    password: "bluemoon815!",
+    password: "bluemoon",
     database: "employee_db",
   },
   console.log("Connected to employee_db!")
@@ -71,26 +71,32 @@ function viewEmployees() {
 
 function addDepartment() {
   inquirer.prompt(addDepartmentPrompts).then((data) => {
-    db.query(`INSERT INTO department (name) VALUES ("${data.newDepartment}")`);
+    db.query(`INSERT INTO department (name) VALUES (?)`, data.newDepartment);
     init();
   });
 }
 
 function addRole() {
-  inquirer.prompt(addRolePrompts).then((data) => {
-    db.query(
-      `INSERT INTO role (title, salary) VALUES ("${data.roleName}", "${data.roleSalary}")`
-    );
-    init();
+  db.query("SELECT * FROM department", (err, data) => {
+    inquirer.prompt(addRolePrompts(data)).then((data) => {
+      // db.query(
+      //   `INSERT INTO role (title, salary) VALUES (?, ?)`,
+      //   data.roleName,
+      //   data.roleSalary
+      // );
+      // init();
+      return data.roleDepartment;
+    }).then((data) => console.log(data));
   });
 }
 
 function addEmployee() {
   db.query("SELECT * FROM role", (err, data) => {
     inquirer.prompt(addEmployeePrompts(data)).then((data) => {
-      db.query(
-        `INSERT INTO employee (first_name, last_name) VALUES ("${data.firstName}", "${data.lastName}")`
-      );
+      db.query(`INSERT INTO employee (first_name, last_name) VALUES (?, ?)`, [
+        data.firstName,
+        data.lastName,
+      ]);
       console.log(
         `New employee ${data.firstName} ${data.lastName} has been added`
       );
