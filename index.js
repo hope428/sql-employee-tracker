@@ -77,22 +77,29 @@ function addDepartment() {
   });
 }
 
-
 function addRole() {
   db.promise()
     .query("SELECT * FROM department")
-    .then((data) => {inquirer.prompt(addRolePrompts(data[0]))
     .then((data) => {
-          const roleName = data.roleName;
-          const roleSalary = data.roleSalary;
-          db.promise().query("SELECT id FROM department WHERE ?", {name: data.roleDepartment,})
-    .then((data) => db.promise().query(`INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,[roleName, roleSalary, data[0].id]))
-    .then((data) => init());
-        });
+      inquirer.prompt(addRolePrompts(data[0])).then((data) => {
+        const roleName = data.roleName;
+        const roleSalary = data.roleSalary;
+        db.promise()
+          .query("SELECT id FROM department WHERE ?", {
+            name: data.roleDepartment,
+          })
+          .then((data) =>
+            db
+              .promise()
+              .query(
+                `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,
+                [roleName, roleSalary, data[0].id]
+              )
+          )
+          .then((data) => init());
+      });
     });
 }
-
-
 
 function addEmployee() {
   //db query to get all info from roles
@@ -151,18 +158,30 @@ function addEmployee() {
   });
 }
 
-
-
 function updateEmployeeRole() {
-  inquirer.prompt(updateEmployeePrompts).then((data) => {
-    if (data.chosenRole === "Cancel") {
-      init();
-    } else {
-      console.log(data);
-      console.log("Employee has been successfully updated!");
-      init();
-    }
-  });
+  db.promise()
+    .query("SELECT first_name, last_name FROM employee")
+    .then((data) => {
+      const employeeNames = data[0];
+      db.promise()
+        .query("SELECT id, title FROM role")
+        .then((data) => {
+          const roles = data[0];
+          inquirer
+            .prompt(updateEmployeePrompts(employeeNames, roles))
+            .then((data) => {
+              const firstName = data.chosenEmployee.split(' ')[0]
+              const lastName = data.chosenEmployee.split(' ')[1]
+              
+              db.promise().query("SELECT id FROM role WHERE ?", {title: data.chosenRole})
+              .then((data) => {
+                const roleId = data[0][0].id
+                db.promise().query("UPDATE employee SET ? WHERE ? && ?", [{role_id: roleId}, {first_name: firstName}, {last_name: lastName}])
+                .then(data => init())
+              })
+            });
+        });
+    });
 }
 
 function exit() {

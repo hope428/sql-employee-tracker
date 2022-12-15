@@ -1,15 +1,21 @@
-const updateEmployeePrompts = [
+const updateEmployeePrompts = (employees, roles) => {
+    const namesArray = []
+    employees.map(employee => namesArray.push(`${employee.first_name} ${employee.last_name}`))
+    const rolesArray = roles.map(role => role.title)
+  return [
     {
-        message: "Which employee do you want to update?",
-        type: 'list',
-        choices: ["list", "of", "employees"],
-        name: "chosenEmployee"
-    }, {
-        message: "Which role do you want to assign to this employee?",
-        type: 'list',
-        choices: ["list", "of", "roles", "Cancel"],
-        name: "chosenRole"
-    }
-]
+      message: "Which employee's role do you want to update?",
+      type: "list",
+      choices: namesArray,
+      name: "chosenEmployee",
+    },
+    {
+      message: "Which role do you want to assign to this employee?",
+      type: "list",
+      choices: rolesArray,
+      name: "chosenRole",
+    },
+  ];
+};
 
-module.exports = updateEmployeePrompts
+module.exports = updateEmployeePrompts;
