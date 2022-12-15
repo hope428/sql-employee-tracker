@@ -106,17 +106,59 @@ function addRole() {
 }
 
 function addEmployee() {
+  //db query to get all info from roles
   db.query("SELECT * FROM role", (err, data) => {
-    inquirer.prompt(addEmployeePrompts(data)).then((data) => {
-      db.query(`INSERT INTO employee (first_name, last_name) VALUES (?, ?)`, [
-        data.firstName,
-        data.lastName,
-      ]);
-      console.log(
-        `New employee ${data.firstName} ${data.lastName} has been added`
-      );
-      init();
-    });
+    const roles = data;
+    //db query to get all manager first names from employee table
+    db.query(
+      "SELECT first_name FROM employee WHERE manager_id is NULL",
+      (err, data) => {
+        const employees = data;
+        //inquirer calls addEmployeePrompts, passing in roles and employee data
+        inquirer.prompt(addEmployeePrompts(roles, employees)).then((data) => {
+          const firstName = data.firstName;
+          const lastName = data.lastName;
+          const employeeRole = data.employeeRole;
+          const employeeManager = data.employeeManager;
+          //db query to get role id
+          db.query(
+            "SELECT id FROM role WHERE title = ?",
+            employeeRole,
+            (err, data) => {
+              const roleID = data[0].id;
+              //db query to get manager id from employee table
+              if (employeeManager !== "None") {
+                db.query(
+                  "SELECT id FROM employee WHERE first_name = ?",
+                  employeeManager,
+                  (err, data) => {
+                    const managerID = data[0].id;
+                    db.query(
+                      `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`,
+                      [firstName, lastName, roleID, managerID]
+                    );
+                    console.log(
+                      `New employee ${data.firstName} ${data.lastName} has been added`
+                    );
+                    init();
+                  }
+                );
+              } else {
+                //If no manager is selected from the list
+                db.query(
+                  `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)`,
+                  [firstName, lastName, roleID, null]
+                );
+                console.log(
+                  `New employee ${data.firstName} ${data.lastName} has been added`
+                );
+                init();
+              }
+            }
+          );
+        });
+      }
+    );
   });
 }
 

@@ -1,5 +1,6 @@
-const addEmployeePrompts = (data) => {
-    const roleArray = data.map(role => role.title)
+const addEmployeePrompts = (role, employee) => {
+  const roleArray = role.map((role) => role.title);
+  const managers = employee.map(employee => employee.first_name)
   return [
     {
       message: "Enter first name",
@@ -20,7 +21,7 @@ const addEmployeePrompts = (data) => {
     {
       message: "Select employee manager",
       type: "list",
-      choices: ["choices", "of", "managers", "None"],
+      choices: [...managers, "None"],
       name: "employeeManager",
     },
   ];
