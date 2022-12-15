@@ -77,33 +77,22 @@ function addDepartment() {
   });
 }
 
+
 function addRole() {
-  db.query("SELECT * FROM department", (err, data) => {
-    inquirer
-      .prompt(addRolePrompts(data))
-      .then((data) => {
-        return data;
-      })
-      //.then block takes data from prompts and calls db.query to retrieve dept id based on dept name
-      .then((data) => {
-        const roleName = data.roleName;
-        const roleSalary = data.roleSalary;
-        db.query(
-          "SELECT id FROM department WHERE ?",
-          { name: data.roleDepartment },
-          (err, data) => {
-            //db query to insert data with department id
-            db.query(
-              `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,
-              [roleName, roleSalary, data[0].id]
-            );
-            //calls main menu
-            init();
-          }
-        );
-      });
-  });
+  db.promise()
+    .query("SELECT * FROM department")
+    .then((data) => {inquirer.prompt(addRolePrompts(data[0]))
+    .then((data) => {
+          const roleName = data.roleName;
+          const roleSalary = data.roleSalary;
+          db.promise().query("SELECT id FROM department WHERE ?", {name: data.roleDepartment,})
+    .then((data) => db.promise().query(`INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,[roleName, roleSalary, data[0].id]))
+    .then((data) => init());
+        });
+    });
 }
+
+
 
 function addEmployee() {
   //db query to get all info from roles
@@ -161,6 +150,8 @@ function addEmployee() {
     );
   });
 }
+
+
 
 function updateEmployeeRole() {
   inquirer.prompt(updateEmployeePrompts).then((data) => {
