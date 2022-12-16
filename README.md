@@ -6,6 +6,7 @@ A helpful command line tool to build an employee tracking database! This project
 ## Installation
 
 - git clone the application
+
 - cd into the application folder
 ```
 npm install
@@ -20,7 +21,7 @@ node index.js
 
 [link to repo](https://github.com/hope428/sql-employee-tracker)
 
-[link to walkthrough video]()
+[link to walkthrough video](https://drive.google.com/file/d/1HCQH4DjjP_YyqaYn9RnqTQmoWhKoY6ow/view)
 
 
 
