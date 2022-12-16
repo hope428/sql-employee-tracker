@@ -67,7 +67,7 @@ function viewRoles() {
 }
 
 function viewEmployees() {
-  db.query("SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, IF(employee.manager_id IS NOT NULL, manager.first_name, NULL) as manager_name FROM employee JOIN role ON employee.role_id = role.id JOIN department ON department.id = role.department_id LEFT JOIN employee manager ON employee.manager_id = manager.id ORDER BY employee.id;", (err, data) => {
+  db.query("SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, IF(employee.manager_id IS NOT NULL, CONCAT(manager.first_name, ' ', manager.last_name), NULL) as manager_name FROM employee JOIN role ON employee.role_id = role.id JOIN department ON department.id = role.department_id LEFT JOIN employee manager ON employee.manager_id = manager.id ORDER BY employee.id;", (err, data) => {
     console.table(data);
 
     init();
@@ -93,13 +93,13 @@ function addRole() {
           .query("SELECT id FROM department WHERE ?", {
             name: data.roleDepartment,
           })
-          .then((data) =>
+          .then((data) =>{
             db
               .promise()
               .query(
                 `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,
-                [roleName, roleSalary, data[0].id]
-              )
+                [roleName, roleSalary, data[0][0].id]
+              )}
           )
           .then((data) => {
             console.log("Role successfully added!");
