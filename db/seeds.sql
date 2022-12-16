@@ -15,3 +15,14 @@ VALUES
     ("Walter", "White", 3, 3),
     ("Jesse", "Pinkman", 2, 3),
     ("Mike", "Ehrmantraut", 1, NULL);
+
+-- SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, 
+-- IF(employee.manager_id IS NOT NULL, manager.first_name, NULL) as manager_name
+-- FROM employee 
+-- JOIN role 
+-- ON employee.role_id = role.id 
+-- JOIN department 
+-- ON department.id = role.department_id 
+-- LEFT JOIN employee manager
+-- ON employee.manager_id = manager.id
+-- ORDER BY employee.id;

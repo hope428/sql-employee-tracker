@@ -57,15 +57,19 @@ function viewDepartments() {
 }
 
 function viewRoles() {
-  db.query("SELECT * FROM role", (err, data) => {
-    console.table(data);
-    init();
-  });
+  db.query(
+    "SELECT role.id, role.title, department.name AS department, role.salary FROM role JOIN department ON role.department_id = department.id ORDER BY role.id",
+    (err, data) => {
+      console.table(data);
+      init();
+    }
+  );
 }
 
 function viewEmployees() {
-  db.query("SELECT * FROM employee", (err, data) => {
+  db.query("SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, IF(employee.manager_id IS NOT NULL, manager.first_name, NULL) as manager_name FROM employee JOIN role ON employee.role_id = role.id JOIN department ON department.id = role.department_id LEFT JOIN employee manager ON employee.manager_id = manager.id ORDER BY employee.id;", (err, data) => {
     console.table(data);
+
     init();
   });
 }
@@ -73,6 +77,7 @@ function viewEmployees() {
 function addDepartment() {
   inquirer.prompt(addDepartmentPrompts).then((data) => {
     db.query(`INSERT INTO department (name) VALUES (?)`, data.newDepartment);
+    console.log("Department added!");
     init();
   });
 }
@@ -96,7 +101,9 @@ function addRole() {
                 [roleName, roleSalary, data[0].id]
               )
           )
-          .then((data) => init());
+          .then((data) => {
+            console.log("Role successfully added!");
+            init()});
       });
     });
 }
@@ -134,7 +141,7 @@ function addEmployee() {
                       [firstName, lastName, roleID, managerID]
                     );
                     console.log(
-                      `New employee ${data.firstName} ${data.lastName} has been added`
+                      `New employee ${firstName} ${lastName} has been added`
                     );
                     init();
                   }
@@ -146,7 +153,7 @@ function addEmployee() {
                   [firstName, lastName, roleID, null]
                 );
                 console.log(
-                  `New employee ${data.firstName} ${data.lastName} has been added`
+                  `New employee ${firstName} ${lastName} has been added`
                 );
                 init();
               }
@@ -170,15 +177,25 @@ function updateEmployeeRole() {
           inquirer
             .prompt(updateEmployeePrompts(employeeNames, roles))
             .then((data) => {
-              const firstName = data.chosenEmployee.split(' ')[0]
-              const lastName = data.chosenEmployee.split(' ')[1]
-              
-              db.promise().query("SELECT id FROM role WHERE ?", {title: data.chosenRole})
-              .then((data) => {
-                const roleId = data[0][0].id
-                db.promise().query("UPDATE employee SET ? WHERE ? && ?", [{role_id: roleId}, {first_name: firstName}, {last_name: lastName}])
-                .then(data => init())
-              })
+              const firstName = data.chosenEmployee.split(" ")[0];
+              const lastName = data.chosenEmployee.split(" ")[1];
+              db.promise()
+                .query("SELECT id FROM role WHERE ?", {
+                  title: data.chosenRole,
+                })
+                .then((data) => {
+                  const roleId = data[0][0].id;
+                  db.promise()
+                    .query("UPDATE employee SET ? WHERE ? && ?", [
+                      { role_id: roleId },
+                      { first_name: firstName },
+                      { last_name: lastName },
+                    ])
+                    .then((data) => {
+                      console.log("Employee role has been updated");
+                      init();
+                    });
+                });
             });
         });
     });
