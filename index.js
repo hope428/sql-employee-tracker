@@ -195,6 +195,7 @@ function updateEmployeeRole() {
 
 function exit() {
   console.log("Thanks for using!");
+  process.exit(0)
 }
 
 init();
