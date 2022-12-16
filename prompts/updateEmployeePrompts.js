@@ -1,7 +1,7 @@
 const updateEmployeePrompts = (employees, roles) => {
     const namesArray = []
     employees.map(employee => namesArray.push(`${employee.first_name} ${employee.last_name}`))
-    const rolesArray = roles.map(role => role.title)
+    const rolesArray = roles.map(role => ({name: role.title, value: role.id}))
   return [
     {
       message: "Which employee's role do you want to update?",

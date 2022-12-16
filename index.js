@@ -67,11 +67,14 @@ function viewRoles() {
 }
 
 function viewEmployees() {
-  db.query("SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, IF(employee.manager_id IS NOT NULL, CONCAT(manager.first_name, ' ', manager.last_name), NULL) as manager_name FROM employee JOIN role ON employee.role_id = role.id JOIN department ON department.id = role.department_id LEFT JOIN employee manager ON employee.manager_id = manager.id ORDER BY employee.id;", (err, data) => {
-    console.table(data);
+  db.query(
+    "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, IF(employee.manager_id IS NOT NULL, CONCAT(manager.first_name, ' ', manager.last_name), NULL) as manager_name FROM employee JOIN role ON employee.role_id = role.id JOIN department ON department.id = role.department_id LEFT JOIN employee manager ON employee.manager_id = manager.id ORDER BY employee.id;",
+    (err, data) => {
+      console.table(data);
 
-    init();
-  });
+      init();
+    }
+  );
 }
 
 function addDepartment() {
@@ -84,26 +87,21 @@ function addDepartment() {
 
 function addRole() {
   db.promise()
-    .query("SELECT * FROM department")
+    .query("SELECT id, name FROM department")
     .then((data) => {
       inquirer.prompt(addRolePrompts(data[0])).then((data) => {
         const roleName = data.roleName;
         const roleSalary = data.roleSalary;
+        const deptId = data.roleDepartment;
         db.promise()
-          .query("SELECT id FROM department WHERE ?", {
-            name: data.roleDepartment,
-          })
-          .then((data) =>{
-            db
-              .promise()
-              .query(
-                `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,
-                [roleName, roleSalary, data[0][0].id]
-              )}
+          .query(
+            `INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)`,
+            [roleName, roleSalary, deptId]
           )
           .then((data) => {
             console.log("Role successfully added!");
-            init()});
+            init();
+          });
       });
     });
 }
@@ -179,22 +177,16 @@ function updateEmployeeRole() {
             .then((data) => {
               const firstName = data.chosenEmployee.split(" ")[0];
               const lastName = data.chosenEmployee.split(" ")[1];
+              const roleId = data.chosenRole;
               db.promise()
-                .query("SELECT id FROM role WHERE ?", {
-                  title: data.chosenRole,
-                })
+                .query("UPDATE employee SET ? WHERE ? && ?", [
+                  { role_id: roleId },
+                  { first_name: firstName },
+                  { last_name: lastName },
+                ])
                 .then((data) => {
-                  const roleId = data[0][0].id;
-                  db.promise()
-                    .query("UPDATE employee SET ? WHERE ? && ?", [
-                      { role_id: roleId },
-                      { first_name: firstName },
-                      { last_name: lastName },
-                    ])
-                    .then((data) => {
-                      console.log("Employee role has been updated");
-                      init();
-                    });
+                  console.log("Employee role has been updated");
+                  init();
                 });
             });
         });

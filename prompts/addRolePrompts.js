@@ -1,5 +1,5 @@
 const addRolePrompts = (data) => {
-  const deptArray = data.map((dept) => dept.name);
+  const deptArray = data.map((dept) => ({name: dept.name, value: dept.id}));
   return [
     {
       message: "What is the name of the role you would like to add?",
