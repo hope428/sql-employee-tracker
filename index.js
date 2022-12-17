@@ -96,10 +96,7 @@ async function addEmployee() {
   const roleData = await db.promise().query("SELECT title, id FROM role")
   const managerList = await db.promise().query("SELECT first_name FROM employee WHERE manager_id is NULL")
   const data = await inquirer.prompt(addEmployeePrompts(roleData[0], managerList[0]))
-  const firstName = data.firstName;
-  const lastName = data.lastName;
-  const employeeRole = data.employeeRole;
-  const employeeManager = data.employeeManager;
+  const {firstName, lastName, employeeRole, employeeManager} = data;
   if(employeeManager !== 'None'){
     const managerID = await db.promise().query("SELECT id FROM employee WHERE first_name = ?", employeeManager)
     const parsedID = managerID[0][0].id
